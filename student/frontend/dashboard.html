@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+  <div class="nav-links">
+    <a href="dashboard.html">Dashboard</a>
+    <a href="courses.html">Courses</a>
+    <a href="index.html">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Welcome Student 👋</h1>
+
+  <div class="grid">
+    <div class="card">
+      <h3>SSC 2026</h3>
+      <button onclick="goCategory('SSC_2026')">Explore</button>
+    </div>
+
+    <div class="card">
+      <h3>Class 6-8</h3>
+      <button onclick="goCategory('Class_6_8')">Explore</button>
+    </div>
+
+    <div class="card">
+      <h3>HSC 2026</h3>
+      <button onclick="goCategory('HSC_2026')">Explore</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>

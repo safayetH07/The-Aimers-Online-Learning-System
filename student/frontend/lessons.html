@@ -1,75 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Lesson - The Aimers</title>
-    <link rel="stylesheet" href="style.css">
+  <title>Lessons</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="logo">The Aimers</div>
-        <div>
-            <a href="courses.html">&larr; Back to Courses</a>
-        </div>
-    </nav>
 
-    <div class="container lesson-layout">
-        <main>
-            <div class="video-container">
-                <video controls style="width: 100%; height: 100%;">
-                    <source src="placeholder.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            
-            <h1 style="margin-bottom: 0.5rem;">Chapter 1: Motion & Force</h1>
-            <p style="color: var(--text-muted); margin-bottom: 1rem;">Instructor: Dr. Ahmed Hasan</p>
-            
-            <div class="card" style="margin-bottom: 2rem;">
-                <h3>Description & Learning Outcomes</h3>
-                <p style="margin-top: 0.5rem;">In this lesson, you will learn the fundamental laws of motion, how to calculate velocity, and the concept of inertia.</p>
-            </div>
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+</nav>
 
-            <div class="card">
-                <h3>Student Comments</h3>
-                <textarea placeholder="Ask a question or share your thoughts..." rows="3" style="margin-top: 1rem;"></textarea>
-                <button class="btn">Post Comment</button>
-                
-                <hr style="border: none; border-top: 1px solid var(--border); margin: 1.5rem 0;">
-                
-                <div style="margin-bottom: 1rem;">
-                    <strong>Rahim U.</strong> <span style="color: var(--text-muted); font-size: 0.8rem;">- 2 hours ago</span>
-                    <p>Can someone explain the formula at 12:45 again?</p>
-                </div>
-            </div>
-        </main>
+<div class="container">
 
-        <aside>
-            <div class="card" style="margin-bottom: 1.5rem;">
-                <h3>Course Topics</h3>
-                <ul style="list-style: none; margin-top: 1rem;">
-                    <li style="padding: 0.5rem; background: var(--bg-color); border-radius: 4px; margin-bottom: 0.5rem; font-weight: bold; border-left: 4px solid var(--primary);">1. Motion & Force (Current)</li>
-                    <li style="padding: 0.5rem; cursor: pointer;">2. Work, Power & Energy</li>
-                    <li style="padding: 0.5rem; cursor: pointer;">3. State of Matter</li>
-                </ul>
-            </div>
+  <div class="card video-box">
+    <h2>Chapter 1: Introduction</h2>
+    <p><b>Instructor:</b> Mr. Rahman</p>
+    <p><b>Learning Outcome:</b> Understand basic concept</p>
 
-            <div class="card">
-                <h3>Teacher Evaluation</h3>
-                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">Review Dr. Ahmed Hasan's teaching style for this module.</p>
-                
-                <select>
-                    <option value="">Rate Teaching Clarity...</option>
-                    <option value="5">Excellent</option>
-                    <option value="4">Good</option>
-                    <option value="3">Average</option>
-                    <option value="2">Needs Improvement</option>
-                </select>
-                
-                <textarea placeholder="Write a short review..." rows="3"></textarea>
-                <button class="btn btn-outline" style="width: 100%;">Submit Review</button>
-            </div>
-        </aside>
+    <iframe height="315"
+      src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+      frameborder="0" allowfullscreen>
+    </iframe>
+  </div>
+
+  <div class="card comment-section">
+    <h3>Comments</h3>
+    <textarea placeholder="Write your comment..."></textarea>
+    <button>Post Comment</button>
+  </div>
+
+  <div class="card">
+    <h3>Teaching Evaluation</h3>
+    <div class="rating-stars">
+      <span>⭐</span>
+      <span>⭐</span>
+      <span>⭐</span>
+      <span>⭐</span>
+      <span>⭐</span>
     </div>
+  </div>
+
+</div>
+
 </body>
 </html>
