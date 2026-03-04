@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Lesson - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+  <div class="nav-links">
+    <a href="teacher_dashboard.html">Dashboard</a>
+    <a href="teacher_courses.html">My Courses</a>
+    <a href="teacher_add_lesson.html">Add Lesson</a>
+    <a href="teacher_students.html">Students</a>
+    <a href="teacher_login.html">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>➕ Add New Lesson</h1>
+
+  <div class="card">
+    <h3>Lesson Details</h3>
+
+    <label>Lesson Title</label>
+    <input type="text" id="lessonTitle" placeholder="e.g. Chapter 1: Introduction to Biology">
+
+    <label>Course</label>
+    <input type="text" id="lessonCourse" placeholder="e.g. Biology">
+
+    <label>Category</label>
+    <select id="lessonCategory">
+      <option value="SSC_2026">SSC 2026</option>
+      <option value="HSC_2026">HSC 2026</option>
+      <option value="Class_6_8">Class 6-8</option>
+    </select>
+
+    <label>YouTube Video URL (embed link)</label>
+    <input type="url" id="lessonVideo" placeholder="https://www.youtube.com/embed/VIDEO_ID">
+
+    <label>Learning Outcomes</label>
+    <textarea id="lessonOutcomes" placeholder="What will students learn from this lesson? List the key learning outcomes..."></textarea>
+
+    <br>
+    <button onclick="addLesson()">Save Lesson</button>
+    <div id="lessonAlert" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- Preview -->
+  <div class="card video-box" id="previewBox" style="display:none;">
+    <h3>📺 Video Preview</h3>
+    <iframe id="previewFrame" src="" frameborder="0" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+  const teacher = JSON.parse(localStorage.getItem('loggedInTeacher') || 'null');
+  if (!teacher) window.location.href = 'teacher_login.html';
+
+  // Live preview
+  document.getElementById('lessonVideo').addEventListener('input', function () {
+    const url = this.value.trim();
+    if (url.includes('youtube.com/embed/')) {
+      document.getElementById('previewFrame').src = url;
+      document.getElementById('previewBox').style.display = 'block';
+    }
+  });
+
+  function addLesson() {
+    const title    = document.getElementById('lessonTitle').value.trim();
+    const course   = document.getElementById('lessonCourse').value.trim();
+    const category = document.getElementById('lessonCategory').value;
+    const video    = document.getElementById('lessonVideo').value.trim();
+    const outcomes = document.getElementById('lessonOutcomes').value.trim();
+    const alertEl  = document.getElementById('lessonAlert');
+
+    if (!title || !course || !video) {
+      alertEl.innerHTML = '<div class="alert alert-error">Please fill in Title, Course, and Video URL.</div>';
+      return;
+    }
+
+    const lessons = JSON.parse(localStorage.getItem('lessons') || '[]');
+    lessons.push({
+      title,
+      course,
+      category,
+      video,
+      outcomes,
+      teacherEmail: teacher.email,
+      teacherName: teacher.name,
+      date: new Date().toLocaleDateString()
+    });
+    localStorage.setItem('lessons', JSON.stringify(lessons));
+
+    alertEl.innerHTML = '<div class="alert alert-success">Lesson added successfully!</div>';
+    document.getElementById('lessonTitle').value    = '';
+    document.getElementById('lessonCourse').value   = '';
+    document.getElementById('lessonVideo').value    = '';
+    document.getElementById('lessonOutcomes').value = '';
+    document.getElementById('previewBox').style.display = 'none';
+    setTimeout(() => alertEl.innerHTML = '', 3000);
+  }
+</script>
+
+</body>
+</html>

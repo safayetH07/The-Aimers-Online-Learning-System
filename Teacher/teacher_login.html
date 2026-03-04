@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Login - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="form-box">
+  <h2>👨‍🏫 Teacher Login</h2>
+  <input type="email" id="email" placeholder="Teacher Email">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="teacherLogin()">Login</button>
+  <p style="margin-top:15px; font-size:13px;">
+    New teacher? <a href="teacher_register.html" style="color:#60a5fa;">Register</a>
+  </p>
+</div>
+
+<script>
+function teacherLogin() {
+  const email    = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  if (!email || !password) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  const teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+  const found    = teachers.find(t => t.email === email && t.password === password);
+
+  if (found) {
+    localStorage.setItem('loggedInTeacher', JSON.stringify(found));
+    window.location.href = 'teacher_dashboard.html';
+  } else {
+    alert('Invalid email or password.');
+  }
+}
+</script>
+</body>
+</html>

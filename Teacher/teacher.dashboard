@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Dashboard - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+  <div class="nav-links">
+    <a href="teacher_dashboard.html">Dashboard</a>
+    <a href="teacher_courses.html">My Courses</a>
+    <a href="teacher_add_lesson.html">Add Lesson</a>
+    <a href="teacher_students.html">Students</a>
+    <a href="teacher_login.html" onclick="logout()">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1 id="welcomeMsg">Welcome, Teacher 👋</h1>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="totalCourses">0</div>
+      <div class="stat-label">My Courses</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="totalLessons">0</div>
+      <div class="stat-label">Total Lessons</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="totalStudents">0</div>
+      <div class="stat-label">Enrolled Students</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="totalComments">0</div>
+      <div class="stat-label">Student Comments</div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="grid">
+    <div class="card">
+      <h3>📚 My Courses</h3>
+      <p style="color:rgba(255,255,255,0.6); margin-bottom:15px;">View and manage all your courses.</p>
+      <button onclick="window.location.href='teacher_courses.html'">Go to Courses</button>
+    </div>
+
+    <div class="card">
+      <h3>➕ Add New Lesson</h3>
+      <p style="color:rgba(255,255,255,0.6); margin-bottom:15px;">Upload a new video lesson for students.</p>
+      <button onclick="window.location.href='teacher_add_lesson.html'">Add Lesson</button>
+    </div>
+
+    <div class="card">
+      <h3>👨‍🎓 Students</h3>
+      <p style="color:rgba(255,255,255,0.6); margin-bottom:15px;">See which students are enrolled.</p>
+      <button onclick="window.location.href='teacher_students.html'">View Students</button>
+    </div>
+
+    <div class="card">
+      <h3>💬 Student Comments</h3>
+      <p style="color:rgba(255,255,255,0.6); margin-bottom:15px;">Read and reply to student questions.</p>
+      <button onclick="window.location.href='teacher_comments.html'">View Comments</button>
+    </div>
+  </div>
+
+  <!-- Recent Lessons -->
+  <div class="card" style="margin-top:10px;">
+    <h3>🕐 Recent Lessons</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Lesson Title</th>
+          <th>Course</th>
+          <th>Category</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="recentLessonsTable">
+        <tr><td colspan="4" style="color:rgba(255,255,255,0.4);">No lessons added yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // Auth check
+  const teacher = JSON.parse(localStorage.getItem('loggedInTeacher') || 'null');
+  if (!teacher) window.location.href = 'teacher_login.html';
+  else document.getElementById('welcomeMsg').textContent = 'Welcome, ' + teacher.name + ' 👋';
+
+  // Load stats
+  const lessons  = JSON.parse(localStorage.getItem('lessons')  || '[]');
+  const courses  = JSON.parse(localStorage.getItem('t_courses') || '[]');
+  const students = JSON.parse(localStorage.getItem('students') || '[]');
+  const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+
+  const myLessons = lessons.filter(l => l.teacherEmail === teacher.email);
+  const myCourses = courses.filter(c => c.teacherEmail === teacher.email);
+
+  document.getElementById('totalCourses').textContent  = myCourses.length;
+  document.getElementById('totalLessons').textContent  = myLessons.length;
+  document.getElementById('totalStudents').textContent = students.length;
+  document.getElementById('totalComments').textContent = comments.length;
+
+  // Recent lessons table
+  const tbody = document.getElementById('recentLessonsTable');
+  if (myLessons.length > 0) {
+    tbody.innerHTML = '';
+    myLessons.slice(-5).reverse().forEach(l => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${l.title}</td>
+          <td>${l.course}</td>
+          <td><span class="badge badge-blue">${l.category}</span></td>
+          <td><button onclick="window.location.href='teacher_lessons.html'">View</button></td>
+        </tr>`;
+    });
+  }
+
+  function logout() {
+    localStorage.removeItem('loggedInTeacher');
+  }
+</script>
+
+</body>
+</html>
