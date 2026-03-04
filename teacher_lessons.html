@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Lessons - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+  <div class="nav-links">
+    <a href="teacher_dashboard.html">Dashboard</a>
+    <a href="teacher_courses.html">My Courses</a>
+    <a href="teacher_add_lesson.html">Add Lesson</a>
+    <a href="teacher_students.html">Students</a>
+    <a href="teacher_login.html">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>🎬 My Lessons</h1>
+
+  <div class="card">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Title</th>
+          <th>Course</th>
+          <th>Category</th>
+          <th>Date</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="lessonsTable">
+        <tr><td colspan="6" style="color:rgba(255,255,255,0.4);">No lessons yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Edit Modal -->
+  <div id="editModal" style="display:none;" class="card">
+    <h3>✏️ Edit Lesson</h3>
+    <label>Title</label>
+    <input type="text" id="editTitle">
+    <label>Course</label>
+    <input type="text" id="editCourse">
+    <label>YouTube Embed URL</label>
+    <input type="url" id="editVideo">
+    <label>Learning Outcomes</label>
+    <textarea id="editOutcomes"></textarea>
+    <br>
+    <button onclick="saveEdit()" style="margin-top:10px;">Save Changes</button>
+    <button onclick="cancelEdit()" style="margin-top:10px; margin-left:10px; background:rgba(255,255,255,0.1);">Cancel</button>
+  </div>
+</div>
+
+<script>
+  const teacher = JSON.parse(localStorage.getItem('loggedInTeacher') || 'null');
+  if (!teacher) window.location.href = 'teacher_login.html';
+
+  let editIndex = -1;
+
+  function getLessons() {
+    return JSON.parse(localStorage.getItem('lessons') || '[]');
+  }
+
+  function renderLessons() {
+    const all    = getLessons();
+    const mine   = all.map((l, i) => ({ ...l, _index: i })).filter(l => l.teacherEmail === teacher.email);
+    const tbody  = document.getElementById('lessonsTable');
+
+    if (mine.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:rgba(255,255,255,0.4);">No lessons yet. <a href="teacher_add_lesson.html" style="color:#60a5fa;">Add one →</a></td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    mine.forEach((l, i) => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${l.title}</td>
+          <td>${l.course}</td>
+          <td><span class="badge badge-blue">${l.category.replace('_', ' ')}</span></td>
+          <td>${l.date || '-'}</td>
+          <td>
+            <button onclick="openEdit(${l._index})" style="margin-right:6px;">Edit</button>
+            <button onclick="deleteLesson(${l._index})" style="background:linear-gradient(45deg,#ef4444,#dc2626);">Delete</button>
+          </td>
+        </tr>`;
+    });
+  }
+
+  function openEdit(index) {
+    editIndex = index;
+    const lessons = getLessons();
+    const l = lessons[index];
+    document.getElementById('editTitle').value    = l.title;
+    document.getElementById('editCourse').value   = l.course;
+    document.getElementById('editVideo').value    = l.video;
+    document.getElementById('editOutcomes').value = l.outcomes || '';
+    document.getElementById('editModal').style.display = 'block';
+    document.getElementById('editModal').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function cancelEdit() {
+    editIndex = -1;
+    document.getElementById('editModal').style.display = 'none';
+  }
+
+  function saveEdit() {
+    const lessons = getLessons();
+    lessons[editIndex].title    = document.getElementById('editTitle').value.trim();
+    lessons[editIndex].course   = document.getElementById('editCourse').value.trim();
+    lessons[editIndex].video    = document.getElementById('editVideo').value.trim();
+    lessons[editIndex].outcomes = document.getElementById('editOutcomes').value.trim();
+    localStorage.setItem('lessons', JSON.stringify(lessons));
+    cancelEdit();
+    renderLessons();
+  }
+
+  function deleteLesson(index) {
+    if (!confirm('Delete this lesson?')) return;
+    const lessons = getLessons();
+    lessons.splice(index, 1);
+    localStorage.setItem('lessons', JSON.stringify(lessons));
+    renderLessons();
+  }
+
+  renderLessons();
+</script>
+
+</body>
+</html>

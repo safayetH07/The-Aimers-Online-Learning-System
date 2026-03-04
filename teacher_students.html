@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Students - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+  <div class="nav-links">
+    <a href="teacher_dashboard.html">Dashboard</a>
+    <a href="teacher_courses.html">My Courses</a>
+    <a href="teacher_add_lesson.html">Add Lesson</a>
+    <a href="teacher_students.html">Students</a>
+    <a href="teacher_login.html">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>👨‍🎓 Enrolled Students</h1>
+
+  <div class="card">
+    <p style="color:rgba(255,255,255,0.5); font-size:13px; margin-bottom:15px;">
+      Students who have registered on the platform.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="studentsTable">
+        <tr><td colspan="4" style="color:rgba(255,255,255,0.4);">No students registered yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const teacher = JSON.parse(localStorage.getItem('loggedInTeacher') || 'null');
+  if (!teacher) window.location.href = 'teacher_login.html';
+
+  const students = JSON.parse(localStorage.getItem('students') || '[]');
+  const tbody    = document.getElementById('studentsTable');
+
+  if (students.length > 0) {
+    tbody.innerHTML = '';
+    students.forEach((s, i) => {
+      tbody.innerHTML += `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${s.name}</td>
+          <td>${s.email}</td>
+          <td><span class="badge badge-green">Active</span></td>
+        </tr>`;
+    });
+  }
+</script>
+
+</body>
+</html>

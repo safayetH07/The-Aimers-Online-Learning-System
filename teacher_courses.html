@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Courses - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+  <div class="nav-links">
+    <a href="teacher_dashboard.html">Dashboard</a>
+    <a href="teacher_courses.html">My Courses</a>
+    <a href="teacher_add_lesson.html">Add Lesson</a>
+    <a href="teacher_students.html">Students</a>
+    <a href="teacher_login.html">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>📚 My Courses</h1>
+
+  <!-- Add Course Form -->
+  <div class="card">
+    <h3>➕ Create New Course</h3>
+    <label>Course Name</label>
+    <input type="text" id="courseName" placeholder="e.g. English 1st Paper">
+    <label>Category</label>
+    <select id="courseCategory">
+      <option value="SSC_2026">SSC 2026</option>
+      <option value="HSC_2026">HSC 2026</option>
+      <option value="Class_6_8">Class 6-8</option>
+    </select>
+    <label>Description</label>
+    <textarea id="courseDesc" placeholder="Short course description..." style="height:80px;"></textarea>
+    <br>
+    <button onclick="addCourse()" style="margin-top:10px;">Create Course</button>
+    <div id="courseAlert"></div>
+  </div>
+
+  <!-- Courses List -->
+  <div class="card">
+    <h3>All My Courses</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Course Name</th>
+          <th>Category</th>
+          <th>Lessons</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="coursesTable">
+        <tr><td colspan="5" style="color:rgba(255,255,255,0.4);">No courses yet.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  const teacher = JSON.parse(localStorage.getItem('loggedInTeacher') || 'null');
+  if (!teacher) window.location.href = 'teacher_login.html';
+
+  function getCourses() {
+    return JSON.parse(localStorage.getItem('t_courses') || '[]');
+  }
+  function getLessons() {
+    return JSON.parse(localStorage.getItem('lessons') || '[]');
+  }
+
+  function renderCourses() {
+    const courses = getCourses().filter(c => c.teacherEmail === teacher.email);
+    const lessons = getLessons();
+    const tbody = document.getElementById('coursesTable');
+
+    if (courses.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:rgba(255,255,255,0.4);">No courses yet.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = '';
+    courses.forEach((c, i) => {
+      const count = lessons.filter(l => l.course === c.name && l.teacherEmail === teacher.email).length;
+      tbody.innerHTML += `
+        <tr>
+          <td>${i + 1}</td>
+          <td>${c.name}</td>
+          <td><span class="badge badge-blue">${c.category.replace('_', ' ')}</span></td>
+          <td>${count}</td>
+          <td>
+            <button onclick="deleteCourse(${i})" style="background:linear-gradient(45deg,#ef4444,#dc2626);">Delete</button>
+          </td>
+        </tr>`;
+    });
+  }
+
+  function addCourse() {
+    const name     = document.getElementById('courseName').value.trim();
+    const category = document.getElementById('courseCategory').value;
+    const desc     = document.getElementById('courseDesc').value.trim();
+    const alertEl  = document.getElementById('courseAlert');
+
+    if (!name) {
+      alertEl.innerHTML = '<div class="alert alert-error">Please enter a course name.</div>';
+      return;
+    }
+
+    const courses = getCourses();
+    courses.push({ name, category, desc, teacherEmail: teacher.email });
+    localStorage.setItem('t_courses', JSON.stringify(courses));
+
+    alertEl.innerHTML = '<div class="alert alert-success">Course created successfully!</div>';
+    document.getElementById('courseName').value = '';
+    document.getElementById('courseDesc').value = '';
+    setTimeout(() => alertEl.innerHTML = '', 3000);
+    renderCourses();
+  }
+
+  function deleteCourse(index) {
+    if (!confirm('Delete this course?')) return;
+    const courses = getCourses().filter(c => c.teacherEmail === teacher.email);
+    courses.splice(index, 1);
+
+    // Keep other teachers' courses
+    const all = getCourses().filter(c => c.teacherEmail !== teacher.email);
+    localStorage.setItem('t_courses', JSON.stringify([...all, ...courses]));
+    renderCourses();
+  }
+
+  renderCourses();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Teacher Register - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="form-box">
+  <h2>📝 Teacher Register</h2>
+  <input type="text"  id="name"    placeholder="Full Name">
+  <input type="email" id="email"   placeholder="Email">
+  <input type="text"  id="subject" placeholder="Subject (e.g. Biology)">
+  <input type="password" id="password" placeholder="Password">
+  <button onclick="registerTeacher()">Create Account</button>
+  <p style="margin-top:15px; font-size:13px;">
+    Already registered? <a href="teacher_login.html" style="color:#60a5fa;">Login</a>
+  </p>
+</div>
+
+<script>
+function registerTeacher() {
+  const name     = document.getElementById('name').value.trim();
+  const email    = document.getElementById('email').value.trim();
+  const subject  = document.getElementById('subject').value.trim();
+  const password = document.getElementById('password').value.trim();
+
+  if (!name || !email || !subject || !password) {
+    alert('Please fill in all fields.');
+    return;
+  }
+
+  const teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+
+  if (teachers.find(t => t.email === email)) {
+    alert('This email is already registered.');
+    return;
+  }
+
+  teachers.push({ name, email, subject, password });
+  localStorage.setItem('teachers', JSON.stringify(teachers));
+
+  alert('Account created! Please login.');
+  window.location.href = 'teacher_login.html';
+}
+</script>
+</body>
+</html>

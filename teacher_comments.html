@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Comments - The Aimers</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="logo">The Aimers 🎓</div>
+  <div class="nav-links">
+    <a href="teacher_dashboard.html">Dashboard</a>
+    <a href="teacher_courses.html">My Courses</a>
+    <a href="teacher_add_lesson.html">Add Lesson</a>
+    <a href="teacher_students.html">Students</a>
+    <a href="teacher_login.html">Logout</a>
+  </div>
+</nav>
+
+<div class="container">
+  <h1>💬 Student Comments</h1>
+
+  <div id="commentsContainer">
+    <div class="card">
+      <p style="color:rgba(255,255,255,0.4);">No comments yet from students.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const teacher  = JSON.parse(localStorage.getItem('loggedInTeacher') || 'null');
+  if (!teacher) window.location.href = 'teacher_login.html';
+
+  const comments = JSON.parse(localStorage.getItem('comments') || '[]');
+  const container = document.getElementById('commentsContainer');
+
+  if (comments.length > 0) {
+    container.innerHTML = '';
+    comments.forEach((c, i) => {
+      const replies = c.replies || [];
+      const repliesHTML = replies.map(r => `
+        <div style="margin-top:10px; padding:10px; background:rgba(96,165,250,0.1); border-radius:8px; border-left:3px solid #60a5fa;">
+          <strong style="color:#60a5fa;">👨‍🏫 Teacher:</strong>
+          <p style="margin-top:5px; font-size:13px;">${r.text}</p>
+        </div>`).join('');
+
+      container.innerHTML += `
+        <div class="card">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong>${c.studentName || 'Student'}</strong>
+            <span class="badge badge-yellow">${c.lesson || 'General'}</span>
+          </div>
+          <p style="color:rgba(255,255,255,0.8);">${c.text}</p>
+          ${repliesHTML}
+          <div style="margin-top:15px;">
+            <textarea id="reply_${i}" placeholder="Write your reply..." style="height:70px;"></textarea>
+            <button onclick="postReply(${i})" style="margin-top:8px;">Reply</button>
+          </div>
+        </div>`;
+    });
+  }
+
+  function postReply(index) {
+    const text = document.getElementById('reply_' + index).value.trim();
+    if (!text) return;
+
+    const allComments = JSON.parse(localStorage.getItem('comments') || '[]');
+    if (!allComments[index].replies) allComments[index].replies = [];
+    allComments[index].replies.push({ text, teacher: teacher.name });
+    localStorage.setItem('comments', JSON.stringify(allComments));
+    alert('Reply posted!');
+    location.reload();
+  }
+</script>
+
+</body>
+</html>
