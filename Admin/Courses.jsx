@@ -27,7 +27,7 @@ export default function AdminCourses() {
 
   const togglePublish = async (courseId, current) => {
     try {
-      await api.put(/admin/courses/${courseId}/publish, { isPublished: !current });
+      await api.put(`/admin/courses/${courseId}/publish`, { isPublished: !current });
       setCourses(prev => prev.map(c => c._id === courseId ? { ...c, isPublished: !current } : c));
       toast.success(current ? 'Course unpublished' : 'Course published ✅');
       if (selected?._id === courseId) setSelected(p => ({ ...p, isPublished: !current }));
@@ -37,7 +37,7 @@ export default function AdminCourses() {
   const deleteCourse = async (courseId) => {
     if (!window.confirm('Permanently delete this course and all its content?')) return;
     try {
-      await api.delete(/admin/courses/${courseId});
+      await api.delete(`/admin/courses/${courseId}`);
       setCourses(prev => prev.filter(c => c._id !== courseId));
       toast.success('Course deleted');
       if (selected?._id === courseId) setSelected(null);
@@ -66,7 +66,7 @@ export default function AdminCourses() {
   };
 
   return (
-    <AdminLayout title="Course Management" subtitle={${courses.length} total courses}>
+    <AdminLayout title="Course Management" subtitle={`${courses.length} total courses`}>
 
       {/* ── Summary ───────────────────────────────────────────────────── */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(170px,1fr))', gap:'1rem', marginBottom:'1.5rem' }}>
@@ -77,7 +77,7 @@ export default function AdminCourses() {
           { icon:'🎯', label:'Total Enrollments', value: courses.reduce((s,c) => s+(c.totalEnrolled||0),0), color:'#2a9dff' },
         ].map((s, i) => (
           <div key={i} style={{ background:'var(--bg-card)', border:'1px solid var(--border)', borderRadius:'var(--radius-lg)', padding:'1rem', display:'flex', alignItems:'center', gap:'0.65rem' }}>
-            <div style={{ width:36, height:36, borderRadius:10, background:${s.color}15, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem' }}>{s.icon}</div>
+            <div style={{ width:36, height:36, borderRadius:10, background:`${s.color}15`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:'1rem' }}>{s.icon}</div>
             <div>
               <div style={{ fontFamily:'var(--font-display)', fontSize:'1.3rem', fontWeight:800, color:'var(--text-primary)' }}>{s.value}</div>
               <div style={{ fontSize:'0.7rem', color:'var(--text-muted)' }}>{s.label}</div>
@@ -100,7 +100,7 @@ export default function AdminCourses() {
         </select>
         <div className="tab-bar" style={{ flexShrink:0 }}>
           {[['all','All'],['published','Published'],['draft','Drafts']].map(([v,l]) => (
-            <button key={v} className={tab-item ${statusFilter===v?'active':''}}
+            <button key={v} className={`tab-item ${statusFilter===v?'active':''}`}
               onClick={() => { setStatusFilter(v); setPage(1); }}
               style={{ padding:'0.42rem 0.75rem', fontSize:'0.78rem' }}>
               {l}
@@ -122,7 +122,7 @@ export default function AdminCourses() {
         <>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:'1rem' }}>
             {paginated.map((course, i) => (
-              <div key={course._id} className="card animate-slide-up" style={{ animationDelay:${i*0.04}s, display:'flex', flexDirection:'column', gap:'1rem' }}>
+              <div key={course._id} className="card animate-slide-up" style={{ animationDelay:`${i*0.04}s`, display:'flex', flexDirection:'column', gap:'1rem' }}>
 
                 {/* Thumb */}
                 <div style={{
@@ -136,7 +136,7 @@ export default function AdminCourses() {
                     : <span>{SUBJECT_ICONS[course.subject] || '📖'}</span>
                   }
                   <div style={{ position:'absolute', top:'0.5rem', right:'0.5rem' }}>
-                    <span className={badge ${course.isPublished ? 'badge-green' : 'badge-yellow'}} style={{ fontSize:'0.65rem' }}>
+                    <span className={`badge ${course.isPublished ? 'badge-green' : 'badge-yellow'}`} style={{ fontSize:'0.65rem' }}>
                       {course.isPublished ? '✅ Live' : '⏳ Draft'}
                     </span>
                   </div>
@@ -164,7 +164,7 @@ export default function AdminCourses() {
                   </button>
                   <button
                     onClick={() => togglePublish(course._id, course.isPublished)}
-                    className={btn btn-sm ${course.isPublished ? 'btn-secondary' : 'btn-primary'}}
+                    className={`btn btn-sm ${course.isPublished ? 'btn-secondary' : 'btn-primary'}`}
                     style={{ flex:1 }}
                   >
                     {course.isPublished ? '📤 Unpublish' : '📢 Publish'}
@@ -181,7 +181,7 @@ export default function AdminCourses() {
               <button onClick={() => setPage(p => Math.max(1,p-1))} disabled={page===1} className="btn btn-ghost btn-sm" style={{ border:'1px solid var(--border)' }}>← Prev</button>
               {Array.from({length:totalPages},(_,i)=>i+1).map(n => (
                 <button key={n} onClick={() => setPage(n)}
-                  className={btn btn-sm ${page===n?'btn-primary':'btn-ghost'}}
+                  className={`btn btn-sm ${page===n?'btn-primary':'btn-ghost'}`}
                   style={{ border:'1px solid var(--border)', minWidth:36 }}>{n}</button>
               ))}
               <button onClick={() => setPage(p => Math.min(totalPages,p+1))} disabled={page===totalPages} className="btn btn-ghost btn-sm" style={{ border:'1px solid var(--border)' }}>Next →</button>
@@ -208,7 +208,7 @@ export default function AdminCourses() {
                 <div style={{ display:'flex', gap:'0.4rem', flexWrap:'wrap' }}>
                   <span className="badge badge-purple" style={{ fontSize:'0.68rem' }}>{selected.category}</span>
                   <span className="badge badge-blue" style={{ fontSize:'0.68rem' }}>{selected.subject}</span>
-                  <span className={badge ${selected.isPublished?'badge-green':'badge-yellow'}} style={{ fontSize:'0.68rem' }}>
+                  <span className={`badge ${selected.isPublished?'badge-green':'badge-yellow'}`} style={{ fontSize:'0.68rem' }}>
                     {selected.isPublished ? 'Published' : 'Draft'}
                   </span>
                 </div>
@@ -242,7 +242,7 @@ export default function AdminCourses() {
 
             <div style={{ display:'flex', gap:'0.65rem' }}>
               <button onClick={() => togglePublish(selected._id, selected.isPublished)}
-                className={btn ${selected.isPublished ? 'btn-secondary' : 'btn-primary'}} style={{ flex:1 }}>
+                className={`btn ${selected.isPublished ? 'btn-secondary' : 'btn-primary'}`} style={{ flex:1 }}>
                 {selected.isPublished ? '📤 Unpublish' : '📢 Publish'}
               </button>
               <button onClick={() => { deleteCourse(selected._id); setSelected(null); }} className="btn btn-danger">🗑️ Delete</button>
