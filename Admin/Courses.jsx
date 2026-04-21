@@ -12,6 +12,8 @@ export default function AdminCourses() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [selected, setSelected] = useState(null);
   const [page,    setPage]      = useState(1);
+  const [sortBy, setSortBy] = useState('newest');
+  const [selectedCourses, setSelectedCourses] = useState([]);
   const PER_PAGE = 12;
 
   useEffect(() => { load(); }, []);
@@ -41,7 +43,64 @@ export default function AdminCourses() {
       setCourses(prev => prev.filter(c => c._id !== courseId));
       toast.success('Course deleted');
       if (selected?._id === courseId) setSelected(null);
+      setSelectedCourses(prev => prev.filter(id => id !== courseId));
     } catch { toast.error('Delete failed'); }
+  };
+
+  const toggleSelect = (courseId) => {
+    setSelectedCourses(prev => prev.includes(courseId) ? prev.filter(id => id !== courseId) : [...prev, courseId]);
+  };
+
+  const selectAll = () => {
+    if (selectedCourses.length === filtered.length) {
+      setSelectedCourses([]);
+    } else {
+      setSelectedCourses(filtered.map(c => c._id));
+    }
+  };
+
+  const bulkPublish = async () => {
+    try {
+      await api.put('/admin/courses/bulk-publish', { courseIds: selectedCourses, isPublished: true });
+      setCourses(prev => prev.map(c => selectedCourses.includes(c._id) ? { ...c, isPublished: true } : c));
+      toast.success(`${selectedCourses.length} courses published`);
+      setSelectedCourses([]);
+    } catch { toast.error('Bulk publish failed'); }
+  };
+
+  const bulkUnpublish = async () => {
+    try {
+      await api.put('/admin/courses/bulk-publish', { courseIds: selectedCourses, isPublished: false });
+      setCourses(prev => prev.map(c => selectedCourses.includes(c._id) ? { ...c, isPublished: false } : c));
+      toast.success(`${selectedCourses.length} courses unpublished`);
+      setSelectedCourses([]);
+    } catch { toast.error('Bulk unpublish failed'); }
+  };
+
+  const bulkDelete = async () => {
+    if (!window.confirm(`Permanently delete ${selectedCourses.length} courses?`)) return;
+    try {
+      await api.delete('/admin/courses/bulk-delete', { data: { courseIds: selectedCourses } });
+      setCourses(prev => prev.filter(c => !selectedCourses.includes(c._id)));
+      toast.success(`${selectedCourses.length} courses deleted`);
+      setSelectedCourses([]);
+    } catch { toast.error('Bulk delete failed'); }
+  };
+
+  const exportCSV = () => {
+    const headers = ['Title', 'Teacher', 'Category', 'Subject', 'Lessons', 'Students', 'Rating', 'Status', 'Created'];
+    const rows = filtered.map(c => [
+      c.title, c.teacher?.name || '', c.category, c.subject, c.totalLessons || 0, c.totalEnrolled || 0, c.avgRating?.toFixed(1) || '0', c.isPublished ? 'Published' : 'Draft', new Date(c.createdAt).toLocaleDateString('en-GB')
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `courses-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('CSV exported');
   };
 
   /* ── Filter ───────────────────────────────────────────────────────────── */
@@ -54,6 +113,15 @@ export default function AdminCourses() {
     const matchCat    = catFilter    === 'all' || c.category === catFilter;
     const matchStatus = statusFilter === 'all' || (statusFilter === 'published' ? c.isPublished : !c.isPublished);
     return matchSearch && matchCat && matchStatus;
+  }).sort((a, b) => {
+    switch (sortBy) {
+      case 'newest': return new Date(b.createdAt) - new Date(a.createdAt);
+      case 'oldest': return new Date(a.createdAt) - new Date(b.createdAt);
+      case 'name':   return a.title.localeCompare(b.title);
+      case 'students': return (b.totalEnrolled || 0) - (a.totalEnrolled || 0);
+      case 'rating': return (b.avgRating || 0) - (a.avgRating || 0);
+      default: return 0;
+    }
   });
 
   const totalPages = Math.ceil(filtered.length / PER_PAGE);
@@ -98,6 +166,14 @@ export default function AdminCourses() {
           value={catFilter} onChange={e => { setCatFilter(e.target.value); setPage(1); }}>
           {categories.map(c => <option key={c} value={c}>{c === 'all' ? 'All Categories' : c}</option>)}
         </select>
+        <select className="form-input form-select" style={{ width:130, flexShrink:0 }}
+          value={sortBy} onChange={e => { setSortBy(e.target.value); setPage(1); }}>
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+          <option value="name">Name A-Z</option>
+          <option value="students">Students</option>
+          <option value="rating">Rating</option>
+        </select>
         <div className="tab-bar" style={{ flexShrink:0 }}>
           {[['all','All'],['published','Published'],['draft','Drafts']].map(([v,l]) => (
             <button key={v} className={`tab-item ${statusFilter===v?'active':''}`}
@@ -107,7 +183,26 @@ export default function AdminCourses() {
             </button>
           ))}
         </div>
+        <button onClick={exportCSV} className="btn btn-ghost btn-sm" style={{ border:'1px solid var(--border)', flexShrink:0 }}>
+          📥 Export CSV
+        </button>
       </div>
+
+      {/* ── Bulk Actions ───────────────────────────────────────────────── */}
+      {selectedCourses.length > 0 && (
+        <div style={{ display:'flex', gap:'0.5rem', marginBottom:'1rem', padding:'0.75rem', background:'var(--bg-elevated)', borderRadius:'var(--radius-md)', border:'1px solid var(--border)', alignItems:'center', flexWrap:'wrap' }}>
+          <span style={{ fontSize:'0.85rem', fontWeight:600 }}>{selectedCourses.length} selected</span>
+          <div style={{ display:'flex', gap:'0.4rem' }}>
+            <button onClick={selectAll} className="btn btn-ghost btn-sm" style={{ border:'1px solid var(--border)' }}>
+              {selectedCourses.length === filtered.length ? 'Deselect All' : 'Select All'}
+            </button>
+            <button onClick={bulkPublish} className="btn btn-primary btn-sm">📢 Publish</button>
+            <button onClick={bulkUnpublish} className="btn btn-secondary btn-sm">📤 Unpublish</button>
+            <button onClick={bulkDelete} className="btn btn-danger btn-sm">🗑️ Delete</button>
+          </div>
+          <button onClick={() => setSelectedCourses([])} className="btn btn-ghost btn-sm" style={{ marginLeft:'auto' }}>✕ Clear</button>
+        </div>
+      )}
 
       {/* ── Course Grid ───────────────────────────────────────────────── */}
       {loading ? (
@@ -122,7 +217,13 @@ export default function AdminCourses() {
         <>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(300px,1fr))', gap:'1rem' }}>
             {paginated.map((course, i) => (
-              <div key={course._id} className="card animate-slide-up" style={{ animationDelay:`${i*0.04}s`, display:'flex', flexDirection:'column', gap:'1rem' }}>
+              <div key={course._id} className="card animate-slide-up" style={{ animationDelay:`${i*0.04}s`, display:'flex', flexDirection:'column', gap:'1rem', position:'relative' }}>
+                
+                {/* Checkbox */}
+                <div style={{ position:'absolute', top:'0.75rem', left:'0.75rem', zIndex:1 }}>
+                  <input type="checkbox" checked={selectedCourses.includes(course._id)} onChange={() => toggleSelect(course._id)}
+                    style={{ width:18, height:18, cursor:'pointer', accentColor:'var(--primary)' }} />
+                </div>
 
                 {/* Thumb */}
                 <div style={{
